@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salah Time – Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(160deg, #6b9278 0%, #7D9E87 55%, #8dab96 100%);
+      color: #2D2D2D;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px 60px;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .page-header .emblem {
+      font-size: 52px;
+      filter: drop-shadow(0 0 20px rgba(201, 160, 60, 0.5));
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .page-header h1 {
+      font-size: 1.8rem;
+      color: #1A3D2B;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .page-header p {
+      font-size: 0.82rem;
+      color: rgba(26, 61, 43, 0.65);
+      margin-top: 4px;
+      font-family: 'Amiri', serif;
+      font-size: 1rem;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(26, 61, 43, 0.15);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #1A3D2B;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(26, 61, 43, 0.15);
+    }
+
+    /* ── Form elements ── */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 0.78rem;
+      color: rgba(26, 61, 43, 0.7);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="time"],
+    select {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(26, 61, 43, 0.2);
+      border-radius: 10px;
+      color: #2D2D2D;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(26, 61, 43, 0.5);
+      box-shadow: 0 0 0 3px rgba(26, 61, 43, 0.1);
+    }
+
+    select option {
+      background: #f4f9f6;
+      color: #2D2D2D;
+    }
+
+    /* ── Tabs ── */
+    .tabs-nav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      border: 1px solid rgba(26, 61, 43, 0.15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.6);
+      color: #1A3D2B;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.9); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #1A3D2B, #2d6a4f);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(26,61,43,0.2);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Visual Selectors ── */
+    .theme-circles {
+      display: flex;
+      gap: 16px;
+    }
+    .theme-option input { display: none; }
+    .color-circle {
+      display: block;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .color-circle.sage { background: linear-gradient(135deg, #7D9E87, #6b9278); }
+    .color-circle.night { background: linear-gradient(135deg, #1A2430, #131A22); }
+    .color-circle.desert { background: linear-gradient(135deg, #EADBC8, #DAC0A3); }
+    
+    .theme-option input:checked + .color-circle {
+      transform: scale(1.15);
+      box-shadow: 0 0 0 3px rgba(26,61,43,0.3);
+      border-color: #fff;
+    }
+
+    .layout-silhouettes {
+      display: flex;
+      gap: 16px;
+    }
+    .layout-option { text-align: center; cursor: pointer; flex: 1; }
+    .layout-option input { display: none; }
+    .sil-box {
+      height: 90px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid rgba(26, 61, 43, 0.15);
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+    .sil-box.sil-widget { background: #1c2635; border-color: transparent; }
+    
+    .layout-option input:checked + .sil-box {
+      border-color: #1A3D2B;
+      box-shadow: 0 4px 12px rgba(26,61,43,0.2);
+      transform: translateY(-2px);
+    }
+    .layout-label {
+      font-size: 0.75rem;
+      color: rgba(26,61,43,0.8);
+      font-weight: 500;
+    }
+    
+    .sil-header { height: 12px; background: rgba(26,61,43,0.2); border-radius: 4px; }
+    .sil-row { height: 8px; background: rgba(26,61,43,0.1); border-radius: 4px; }
+    .sil-circle { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #D34545; margin: 0 auto; }
+    .sil-grid { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .sil-grid i { background: rgba(255,255,255,0.15); height: 6px; border-radius: 2px; display: block; }
+    .sil-bar { height: 14px; background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ── Toggle ── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(26, 61, 43, 0.1);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      font-size: 0.85rem;
+      color: #2D2D2D;
+    }
+
+    .toggle-sub {
+      font-size: 0.72rem;
+      color: rgba(26, 61, 43, 0.5);
+      margin-top: 2px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(26, 61, 43, 0.15);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    input:checked+.slider {
+      background: linear-gradient(135deg, #1A3D2B, #2d6a4f);
+    }
+
+    input:checked+.slider::before {
+      transform: translateX(20px);
+      background: #ffffff;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px;
+      border-radius: 12px;
+      border: 1px solid rgba(26, 61, 43, 0.25);
+      background: rgba(255, 255, 255, 0.7);
+      color: #2D2D2D;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+      color: #1A3D2B;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #1A3D2B, #2d6a4f);
+      color: #ffffff;
+      font-weight: 700;
+      border: none;
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 4px 20px rgba(26, 61, 43, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: linear-gradient(135deg, #1A3D2B, #2d6a4f);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 1000;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Prayer test row ── */
+    #prayer-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      padding: 8px 12px;
+      background: rgba(26, 61, 43, 0.05);
+      border-radius: 8px;
+      border-left: 3px solid rgba(26, 61, 43, 0.3);
+    }
+
+    .preview-row span:first-child {
+      color: rgba(26, 61, 43, 0.75);
+    }
+
+    .preview-row span:last-child {
+      color: #1A3D2B;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="page-header">
+      <span class="emblem">&#9789;</span>
+      <h1>Salah Time Settings</h1>
+      <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    </div>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-location">Location</button>
+      <button class="tab-btn" data-tab="tab-calculation">Calculation</button>
+      <button class="tab-btn" data-tab="tab-appearance">Appearance</button>
+      <button class="tab-btn" data-tab="tab-notifications">Notifications</button>
+      <button class="tab-btn" data-tab="tab-tasks">Tasks</button>
+    </div>
+
+    <!-- Location Tab -->
+    <div class="tab-content active" id="tab-location">
+      <div class="card">
+        <div class="card-title">Location</div>
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="city" placeholder="e.g. Cairo, London, New York…" />
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <input type="text" id="country" placeholder="e.g. Egypt, UK, USA…" />
+        </div>
+        <button class="btn" id="btn-detect" style="width:100%;margin-top:4px;">
+          Auto-detect my location
+        </button>
+      </div>
+    </div>
+
+    <!-- Calculation Tab -->
+    <div class="tab-content" id="tab-calculation">
+      <div class="card">
+        <div class="card-title">Calculation Method</div>
+        <div class="form-group">
+          <label>Method</label>
+          <select id="method">
+            <option value="1">Muslim World League</option>
+            <option value="2" selected>Islamic Society of North America (ISNA)</option>
+            <option value="3">Egyptian General Authority of Survey</option>
+            <option value="4">Umm Al-Qura University, Makkah</option>
+            <option value="5">University of Islamic Sciences, Karachi</option>
+            <option value="7">Institute of Geophysics, University of Tehran</option>
+            <option value="8">Gulf Region</option>
+            <option value="9">Kuwait</option>
+            <option value="10">Qatar</option>
+            <option value="11">Majlis Ugama Islam Singapura, Singapore</option>
+            <option value="12">Union Organization Islamic de France</option>
+            <option value="13">Diyanet İşleri Başkanlığı, Turkey</option>
+            <option value="14">Spiritual Administration of Muslims of Russia</option>
+            <option value="15">Moonsighting Committee Worldwide</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Asr Juristic Method</label>
+          <select id="school">
+            <option value="0">Shafi'i (Standard)</option>
+            <option value="1">Hanafi</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance Tab -->
+    <div class="tab-content" id="tab-appearance">
+      <div class="card">
+        <div class="card-title">Appearance</div>
+        <div class="form-group">
+          <label style="margin-bottom: 12px;">Color Theme</label>
+          <div class="theme-circles">
+            <label class="theme-option" title="Sage (Green)">
+              <input type="radio" name="theme" value="sage" checked>
+              <span class="color-circle sage"></span>
+            </label>
+            <label class="theme-option" title="Night (Dark)">
+              <input type="radio" name="theme" value="night">
+              <span class="color-circle night"></span>
+            </label>
+            <label class="theme-option" title="Desert (Warm)">
+              <input type="radio" name="theme" value="desert">
+              <span class="color-circle desert"></span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 28px;">
+          <label style="margin-bottom: 12px;">Popup Layout</label>
+          <div class="layout-silhouettes">
+            <label class="layout-option" title="Standard List">
+              <input type="radio" name="layout" value="list" checked>
+              <div class="sil-box">
+                <div class="sil-header"></div>
+                <div class="sil-row"></div><div class="sil-row"></div><div class="sil-row"></div>
+              </div>
+              <span class="layout-label">List</span>
+            </label>
+            <label class="layout-option" title="Vertical Grid (Ring)">
+              <input type="radio" name="layout" value="ring">
+              <div class="sil-box sil-widget">
+                <div class="sil-circle"></div>
+                <div class="sil-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <span class="layout-label">Vertical</span>
+            </label>
+            <label class="layout-option" title="Horizontal Grid (Bar)">
+              <input type="radio" name="layout" value="bar">
+              <div class="sil-box sil-widget">
+                <div class="sil-bar"></div>
+                <div class="sil-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <span class="layout-label">Horizontal</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div class="tab-content" id="tab-notifications">
+      <div class="card">
+        <div class="card-title">Notifications &amp; Blocking</div>
+  
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Warn before prayer</div>
+            <div class="toggle-sub">Show a reminder N minutes before each prayer</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-warn" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+  
+        <div class="form-group" style="margin-top:14px;">
+          <label>Warning time (minutes before prayer)</label>
+          <input type="number" id="notifyBefore" min="1" max="30" value="5" />
+        </div>
+  
+        <div class="toggle-row" style="margin-top:8px;">
+          <div>
+            <div class="toggle-label">Block screen at prayer time</div>
+            <div class="toggle-sub">Covers all tabs with the prayer overlay</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggle-block" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks Tab -->
+    <div class="tab-content" id="tab-tasks">
+      <div class="card">
+        <div class="card-title">Custom Task Reminders</div>
+        <div class="form-group">
+          <label>Task Name</label>
+          <input type="text" id="taskName" placeholder="e.g. Drink water, Jump rope…" />
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label>Reminder Type</label>
+            <select id="taskType">
+              <option value="interval">Every X Minutes</option>
+              <option value="time">Specific Time</option>
+            </select>
+          </div>
+          <div class="form-group" id="taskValueGroup">
+            <label id="taskValueLabel">Minutes</label>
+            <input type="number" id="taskValueInterval" min="1" max="1440" value="30" />
+            <input type="time" id="taskValueTime" style="display:none;" />
+          </div>
+        </div>
+        <button class="btn primary" id="btn-add-task" style="width:100%; margin-top:4px;">
+          + Add Reminder
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Active Reminders</div>
+        <div id="tasks-list" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;text-align:center;" id="no-tasks-msg">No reminders set</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's preview -->
+    <div class="card" id="preview-card" style="margin-top: 12px;">
+      <div class="card-title">Today's Prayer Times Preview</div>
+      <div id="prayer-preview">
+        <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;">Save settings to load today's times</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="btn-cancel">Cancel</button>
+      <button class="btn primary" id="btn-save">Save &amp; Apply</button>
+    </div>
+  </div>
+
+  <div id="toast">Settings saved! Prayer times updated.</div>
+  <script src="options.js"></script>
+</body>
+
+</html>
