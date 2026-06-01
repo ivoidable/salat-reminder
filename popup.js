@@ -3,6 +3,98 @@
 const ARABIC = { Fajr:'الفجر', Sunrise:'الشروق', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
 const ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
+
+const TRANSLATIONS = {
+  en: {
+    title: "Salah Time",
+    subtitle: "Prayer Reminder & Blocker",
+    settingsTitle: "Settings",
+    checking: "Checking prayer times…",
+    detecting: "Detecting location…",
+    todaysPrayers: "Today's Prayer Times",
+    nextPrayer: "Next Prayer",
+    btnRefresh: "Refresh",
+    btnSettings: "Settings",
+    wBtnRefresh: "↻ Refresh",
+    wBtnSettings: "⚙ Settings",
+    refreshing: "Refreshing...",
+    wRefreshing: "↻...",
+    blockedMsg: (p) => `${p} prayer time – screen blocked`,
+    activeMsg: "Active – monitoring prayer times",
+    noLocation: "Location not set – visit Settings",
+    badgeNext: "Next",
+    timeLeftMsg: "Time left for",
+    timeLeftAzan: "Time left for Azan",
+    Fajr: "Fajr", Sunrise: "Sunrise", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha"
+  },
+  ar: {
+    title: "أوقات الصلاة",
+    subtitle: "تذكير وحظر وقت الصلاة",
+    settingsTitle: "الإعدادات",
+    checking: "جاري التحقق من أوقات الصلاة...",
+    detecting: "جاري تحديد الموقع...",
+    todaysPrayers: "أوقات الصلاة لليوم",
+    nextPrayer: "الصلاة القادمة",
+    btnRefresh: "تحديث",
+    btnSettings: "الإعدادات",
+    wBtnRefresh: "↻ تحديث",
+    wBtnSettings: "⚙ الإعدادات",
+    refreshing: "جاري التحديث...",
+    wRefreshing: "↻...",
+    blockedMsg: (p) => `وقت صلاة ${p} - تم حظر الشاشة`,
+    activeMsg: "نشط - مراقبة أوقات الصلاة",
+    noLocation: "الموقع غير محدد - قم بزيارة الإعدادات",
+    badgeNext: "التالية",
+    timeLeftMsg: "بقى على",
+    timeLeftAzan: "تبقى على الأذان",
+    Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء"
+  },
+  fr: {
+    title: "Heures de Prière",
+    subtitle: "Rappel et Blocage",
+    settingsTitle: "Paramètres",
+    checking: "Vérification des heures de prière...",
+    detecting: "Détection de l'emplacement...",
+    todaysPrayers: "Heures de Prière du Jour",
+    nextPrayer: "Prochaine Prière",
+    btnRefresh: "Actualiser",
+    btnSettings: "Paramètres",
+    wBtnRefresh: "↻ Actualiser",
+    wBtnSettings: "⚙ Paramètres",
+    refreshing: "Actualisation...",
+    wRefreshing: "↻...",
+    blockedMsg: (p) => `Heure de prière ${p} – écran bloqué`,
+    activeMsg: "Actif – surveillance des heures de prière",
+    noLocation: "Emplacement non défini – allez aux paramètres",
+    badgeNext: "Prochaine",
+    timeLeftMsg: "Temps restant",
+    timeLeftAzan: "Temps avant l'Adhan",
+    Fajr: "Fajr", Sunrise: "Chourouq", Dhuhr: "Dhouhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha"
+  }
+};
+
+let currentLang = 'en';
+
+function applyTranslations(lang) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      el.textContent = t[key];
+    }
+  });
+
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    if (t[key]) {
+      el.title = t[key];
+    }
+  });
+}
+
 let countdownInterval = null;
 let currentLayout = 'list';
 
@@ -20,13 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function forceFetch() {
   const btn = document.getElementById('btn-refresh');
   const wbtn = document.getElementById('widget-btn-refresh');
-  btn.textContent = 'Refreshing...';
-  wbtn.textContent = '↻...';
+  const t = TRANSLATIONS[currentLang] || TRANSLATIONS['en'];
+  btn.textContent = t.refreshing;
+  wbtn.textContent = t.wRefreshing;
   btn.disabled = true; wbtn.disabled = true;
   chrome.runtime.sendMessage({ type: 'FORCE_FETCH' }, () => {
     loadState();
-    btn.textContent = 'Refresh';
-    wbtn.textContent = '↻ Refresh';
+    btn.textContent = t.btnRefresh;
+    wbtn.textContent = t.wBtnRefresh;
     btn.disabled = false; wbtn.disabled = false;
   });
 }
@@ -40,6 +133,8 @@ async function loadState() {
     if (!state) return;
     
     currentLayout = state.settings?.layout || 'list';
+    currentLang = state.settings?.language || 'en';
+    applyTranslations(currentLang);
     
     if (currentLayout !== 'list') {
       document.getElementById('main-view').style.display = 'none';
@@ -68,10 +163,13 @@ function renderStatus(state) {
 
   if (state.blocked) {
     bar.className = 'blocked';
-    text.textContent = `${state.currentPrayer} prayer time – screen blocked`;
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS['en'];
+    const pName = currentLang === 'ar' ? (ARABIC[state.currentPrayer] || state.currentPrayer) : (t[state.currentPrayer] || state.currentPrayer);
+    text.textContent = t.blockedMsg(pName);
   } else {
     bar.className = 'ok';
-    text.textContent = 'Active – monitoring prayer times';
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS['en'];
+    text.textContent = t.activeMsg;
   }
 }
 
@@ -80,7 +178,8 @@ function renderLocation(settings) {
   if (settings?.city) {
     el.textContent = `${settings.city}, ${settings.country}`;
   } else {
-    el.textContent = 'Location not set – visit Settings';
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS['en'];
+    el.textContent = t.noLocation;
   }
 }
 
@@ -109,11 +208,11 @@ function renderPrayers(times, blocked, layout = 'list') {
         return `
           <div class="prayer-row ${isNext ? 'next' : passed ? 'passed' : ''}">
             <span class="prayer-name">
-              ${name}
+              ${(TRANSLATIONS[currentLang] || TRANSLATIONS['en'])[name] || name}
               <span class="prayer-name-ar">${ARABIC[name] || ''}</span>
             </span>
             <span class="prayer-time">${formatTime(times[name])}</span>
-            ${isNext ? '<span class="prayer-badge">Next</span>' : ''}
+            ${isNext ? `<span class="prayer-badge">${(TRANSLATIONS[currentLang] || TRANSLATIONS['en']).badgeNext}</span>` : ''}
           </div>`;
       }).join('');
   } else {
@@ -131,7 +230,7 @@ function renderPrayers(times, blocked, layout = 'list') {
       
       html += `
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; ${isNext ? 'font-weight: 700;' : ''}">
-          <span style="font-size: 1.15rem; ${colorClass}">${ARABIC[name]}</span>
+          <span style="font-size: 1.15rem; ${colorClass}">${currentLang === 'ar' ? ARABIC[name] : (TRANSLATIONS[currentLang] || TRANSLATIONS['en'])[name] || name}</span>
           <span style="font-size: 1.05rem; font-variant-numeric: tabular-nums; ${colorClass}">${formatTimeShort(times[name])}</span>
         </div>
       `;
@@ -163,7 +262,7 @@ function startCountdown(times, layout = 'list') {
       if (layout === 'list') {
         const section = document.getElementById('next-section');
         section.style.display = 'flex';
-        document.getElementById('next-prayer-name').textContent = `${nextName} · ${ARABIC[nextName]}`;
+        document.getElementById('next-prayer-name').textContent = currentLang === 'ar' ? ARABIC[nextName] : `${(TRANSLATIONS[currentLang] || TRANSLATIONS['en'])[nextName] || nextName} · ${ARABIC[nextName]}`;
         document.getElementById('countdown').textContent = hh > 0 ? `${hh}h ${mm}m` : `${mm}m`;
       } else {
         const wc = document.getElementById('widget-countdown-container');
@@ -180,8 +279,8 @@ function startCountdown(times, layout = 'list') {
                 <circle cx="50" cy="50" r="45" fill="none" stroke="var(--accent-color)" stroke-width="5" stroke-dasharray="282.7" stroke-dashoffset="${282.7 - dash}" stroke-linecap="round"></circle>
               </svg>
               <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 2px;">بقى على</div>
-                <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 2px;">${ARABIC[nextName]}</div>
+                <div style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 2px;">${(TRANSLATIONS[currentLang] || TRANSLATIONS['en']).timeLeftMsg}</div>
+                <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 2px;">${currentLang === 'ar' ? ARABIC[nextName] : ((TRANSLATIONS[currentLang] || TRANSLATIONS['en'])[nextName] || nextName)}</div>
                 <div style="font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums;">${timeStr}</div>
               </div>
               <div style="position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: var(--accent-color); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 4px var(--widget-bg);">
@@ -196,8 +295,8 @@ function startCountdown(times, layout = 'list') {
                 ${timeStr}
               </div>
               <div style="flex: 1; display: flex; align-items: center; justify-content: flex-end; padding: 0 20px; direction: rtl; gap: 8px;">
-                <span style="font-size: 1.4rem; font-weight: 700;">${ARABIC[nextName]}</span>
-                <span style="opacity: 0.8; font-size: 0.9rem;">تبقى على الأذان</span>
+                <span style="font-size: 1.4rem; font-weight: 700;">${currentLang === 'ar' ? ARABIC[nextName] : ((TRANSLATIONS[currentLang] || TRANSLATIONS['en'])[nextName] || nextName)}</span>
+                <span style="opacity: 0.8; font-size: 0.9rem;">${(TRANSLATIONS[currentLang] || TRANSLATIONS['en']).timeLeftAzan}</span>
               </div>
             </div>
           `;

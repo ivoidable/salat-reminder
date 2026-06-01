@@ -393,32 +393,32 @@
   <div class="container">
     <div class="page-header">
       <span class="emblem">&#9789;</span>
-      <h1>Salah Time Settings</h1>
+      <h1 data-i18n="pageTitle">Salah Time Settings</h1>
       <p>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
     </div>
 
     <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="tab-location">Location</button>
-      <button class="tab-btn" data-tab="tab-calculation">Calculation</button>
-      <button class="tab-btn" data-tab="tab-appearance">Appearance</button>
-      <button class="tab-btn" data-tab="tab-notifications">Notifications</button>
-      <button class="tab-btn" data-tab="tab-tasks">Tasks</button>
+      <button class="tab-btn active" data-tab="tab-location" data-i18n="tabLocation">Location</button>
+      <button class="tab-btn" data-tab="tab-calculation" data-i18n="tabCalculation">Calculation</button>
+      <button class="tab-btn" data-tab="tab-appearance" data-i18n="tabAppearance">Appearance</button>
+      <button class="tab-btn" data-tab="tab-notifications" data-i18n="tabNotifications">Notifications</button>
+      <button class="tab-btn" data-tab="tab-tasks" data-i18n="tabTasks">Tasks</button>
     </div>
 
     <!-- Location Tab -->
     <div class="tab-content active" id="tab-location">
       <div class="card">
-        <div class="card-title">Location</div>
+        <div class="card-title" data-i18n="cardLocation">Location</div>
         <div class="form-group">
-          <label>City</label>
-          <input type="text" id="city" placeholder="e.g. Cairo, London, New York…" />
+          <label data-i18n="labelCity">City</label>
+          <input type="text" id="city" placeholder="e.g. Cairo, London, New York…" data-i18n-placeholder="placeholderCity" />
         </div>
         <div class="form-group">
-          <label>Country</label>
-          <input type="text" id="country" placeholder="e.g. Egypt, UK, USA…" />
+          <label data-i18n="labelCountry">Country</label>
+          <input type="text" id="country" placeholder="e.g. Egypt, UK, USA…" data-i18n-placeholder="placeholderCountry" />
         </div>
         <button class="btn" id="btn-detect" style="width:100%;margin-top:4px;">
-          Auto-detect my location
+          <span data-i18n="btnDetect">Auto-detect my location</span>
         </button>
       </div>
     </div>
@@ -426,9 +426,9 @@
     <!-- Calculation Tab -->
     <div class="tab-content" id="tab-calculation">
       <div class="card">
-        <div class="card-title">Calculation Method</div>
+        <div class="card-title" data-i18n="cardCalculation">Calculation Method</div>
         <div class="form-group">
-          <label>Method</label>
+          <label data-i18n="labelMethod">Method</label>
           <select id="method">
             <option value="1">Muslim World League</option>
             <option value="2" selected>Islamic Society of North America (ISNA)</option>
@@ -447,7 +447,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Asr Juristic Method</label>
+          <label data-i18n="labelSchool">Asr Juristic Method</label>
           <select id="school">
             <option value="0">Shafi'i (Standard)</option>
             <option value="1">Hanafi</option>
@@ -459,9 +459,9 @@
     <!-- Appearance Tab -->
     <div class="tab-content" id="tab-appearance">
       <div class="card">
-        <div class="card-title">Appearance</div>
+        <div class="card-title" data-i18n="cardAppearance">Appearance</div>
         <div class="form-group">
-          <label style="margin-bottom: 12px;">Color Theme</label>
+          <label style="margin-bottom: 12px;" data-i18n="labelTheme">Color Theme</label>
           <div class="theme-circles">
             <label class="theme-option" title="Sage (Green)">
               <input type="radio" name="theme" value="sage" checked>
@@ -477,8 +477,17 @@
             </label>
           </div>
         </div>
+
         <div class="form-group" style="margin-top: 28px;">
-          <label style="margin-bottom: 12px;">Popup Layout</label>
+          <label style="margin-bottom: 12px;" data-i18n="labelLanguage">Language</label>
+          <select id="language">
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top: 28px;">
+          <label style="margin-bottom: 12px;" data-i18n="labelLayout">Popup Layout</label>
           <div class="layout-silhouettes">
             <label class="layout-option" title="Standard List">
               <input type="radio" name="layout" value="list" checked>
@@ -486,7 +495,7 @@
                 <div class="sil-header"></div>
                 <div class="sil-row"></div><div class="sil-row"></div><div class="sil-row"></div>
               </div>
-              <span class="layout-label">List</span>
+              <span class="layout-label" data-i18n="layoutList">List</span>
             </label>
             <label class="layout-option" title="Vertical Grid (Ring)">
               <input type="radio" name="layout" value="ring">
@@ -494,7 +503,7 @@
                 <div class="sil-circle"></div>
                 <div class="sil-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
               </div>
-              <span class="layout-label">Vertical</span>
+              <span class="layout-label" data-i18n="layoutVertical">Vertical</span>
             </label>
             <label class="layout-option" title="Horizontal Grid (Bar)">
               <input type="radio" name="layout" value="bar">
@@ -502,7 +511,7 @@
                 <div class="sil-bar"></div>
                 <div class="sil-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
               </div>
-              <span class="layout-label">Horizontal</span>
+              <span class="layout-label" data-i18n="layoutHorizontal">Horizontal</span>
             </label>
           </div>
         </div>
@@ -512,12 +521,12 @@
     <!-- Notifications Tab -->
     <div class="tab-content" id="tab-notifications">
       <div class="card">
-        <div class="card-title">Notifications &amp; Blocking</div>
+        <div class="card-title" data-i18n="cardNotifications">Notifications &amp; Blocking</div>
   
         <div class="toggle-row">
           <div>
-            <div class="toggle-label">Warn before prayer</div>
-            <div class="toggle-sub">Show a reminder N minutes before each prayer</div>
+            <div class="toggle-label" data-i18n="labelWarn">Warn before prayer</div>
+            <div class="toggle-sub" data-i18n="subWarn">Show a reminder N minutes before each prayer</div>
           </div>
           <label class="switch">
             <input type="checkbox" id="toggle-warn" checked />
@@ -526,14 +535,14 @@
         </div>
   
         <div class="form-group" style="margin-top:14px;">
-          <label>Warning time (minutes before prayer)</label>
+          <label data-i18n="labelWarningTime">Warning time (minutes before prayer)</label>
           <input type="number" id="notifyBefore" min="1" max="30" value="5" />
         </div>
   
         <div class="toggle-row" style="margin-top:8px;">
           <div>
-            <div class="toggle-label">Block screen at prayer time</div>
-            <div class="toggle-sub">Covers all tabs with the prayer overlay</div>
+            <div class="toggle-label" data-i18n="labelBlock">Block screen at prayer time</div>
+            <div class="toggle-sub" data-i18n="subBlock">Covers all tabs with the prayer overlay</div>
           </div>
           <label class="switch">
             <input type="checkbox" id="toggle-block" checked />
@@ -546,53 +555,53 @@
     <!-- Tasks Tab -->
     <div class="tab-content" id="tab-tasks">
       <div class="card">
-        <div class="card-title">Custom Task Reminders</div>
+        <div class="card-title" data-i18n="cardCustomTasks">Custom Task Reminders</div>
         <div class="form-group">
-          <label>Task Name</label>
-          <input type="text" id="taskName" placeholder="e.g. Drink water, Jump rope…" />
+          <label data-i18n="labelTaskName">Task Name</label>
+          <input type="text" id="taskName" placeholder="e.g. Drink water, Jump rope…" data-i18n-placeholder="placeholderTaskName" />
         </div>
         <div class="row-2">
           <div class="form-group">
-            <label>Reminder Type</label>
+            <label data-i18n="labelTaskType">Reminder Type</label>
             <select id="taskType">
-              <option value="interval">Every X Minutes</option>
-              <option value="time">Specific Time</option>
+              <option value="interval" data-i18n="optInterval">Every X Minutes</option>
+              <option value="time" data-i18n="optTime">Specific Time</option>
             </select>
           </div>
           <div class="form-group" id="taskValueGroup">
-            <label id="taskValueLabel">Minutes</label>
+            <label id="taskValueLabel" data-i18n="labelMinutes">Minutes</label>
             <input type="number" id="taskValueInterval" min="1" max="1440" value="30" />
             <input type="time" id="taskValueTime" style="display:none;" />
           </div>
         </div>
         <button class="btn primary" id="btn-add-task" style="width:100%; margin-top:4px;">
-          + Add Reminder
+          <span data-i18n="btnAddReminder">+ Add Reminder</span>
         </button>
       </div>
 
       <div class="card">
-        <div class="card-title">Active Reminders</div>
+        <div class="card-title" data-i18n="cardActiveReminders">Active Reminders</div>
         <div id="tasks-list" style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;text-align:center;" id="no-tasks-msg">No reminders set</div>
+          <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;text-align:center;" id="no-tasks-msg" data-i18n="msgNoReminders">No reminders set</div>
         </div>
       </div>
     </div>
 
     <!-- Today's preview -->
     <div class="card" id="preview-card" style="margin-top: 12px;">
-      <div class="card-title">Today's Prayer Times Preview</div>
+      <div class="card-title" data-i18n="cardPreview">Today's Prayer Times Preview</div>
       <div id="prayer-preview">
-        <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;">Save settings to load today's times</div>
+        <div style="color:rgba(26,61,43,0.4);font-size:0.8rem;"><span data-i18n="msgSaveToLoad">Save settings to load today's times</span></div>
       </div>
     </div>
 
     <div class="btn-row">
-      <button class="btn" id="btn-cancel">Cancel</button>
-      <button class="btn primary" id="btn-save">Save &amp; Apply</button>
+      <button class="btn" id="btn-cancel" data-i18n="btnCancel">Cancel</button>
+      <button class="btn primary" id="btn-save" data-i18n="btnSave">Save &amp; Apply</button>
     </div>
   </div>
 
-  <div id="toast">Settings saved! Prayer times updated.</div>
+  <div id="toast" data-i18n="toastSaved">Settings saved! Prayer times updated.</div>
   <script src="options.js"></script>
 </body>
 

@@ -26,6 +26,73 @@
     }
   });
 
+
+  const TRANSLATIONS = {
+    en: {
+      prayerTime: (p) => `${p} Prayer Time`,
+      ayah: "Indeed, prayer has been decreed upon the believers a decree of specified times.",
+      quranRef: "— Quran 4:103",
+      currentTime: "Current Time",
+      elapsed: "Elapsed",
+      step1: "Make Wudu (Ablution)",
+      step2: "Face the Qiblah",
+      step3: "Perform Your Prayer",
+      btnPrayed: "I Have Prayed &ndash; Resume Work",
+      btnPrayedDone: "جزاك الله خيراً · Jazākallāhu Khayran",
+      hadith: '"The five daily prayers expiate what is between them."',
+      hadithRef: "— Sahih Muslim 233",
+      taskReminder: "Task Reminder",
+      btnTaskDone: "I Have Finished &ndash; Resume Work",
+      btnTaskCompleted: "Task Completed!",
+      warnTitle: "Prayer Reminder",
+      warnMsg: (p) => `<strong>${p}</strong> prayer is in 5 minutes.`,
+      warnSub: "Prepare yourself for prayer – Allahu Akbar.",
+      btnDismiss: "Dismiss"
+    },
+    ar: {
+      prayerTime: (p) => `حان الآن موعد صلاة ${p}`,
+      ayah: "إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا",
+      quranRef: "— سورة النساء: 103",
+      currentTime: "الوقت الحالي",
+      elapsed: "الوقت المنقضي",
+      step1: "توضأ",
+      step2: "استقبل القبلة",
+      step3: "أقم صلاتك",
+      btnPrayed: "لقد صليت – متابعة العمل",
+      btnPrayedDone: "جزاك الله خيراً",
+      hadith: '"الصلوات الخمس كفارة لما بينهن"',
+      hadithRef: "— صحيح مسلم ٢٣٣",
+      taskReminder: "تذكير بمهمة",
+      btnTaskDone: "لقد انتهيت – متابعة العمل",
+      btnTaskCompleted: "اكتملت المهمة!",
+      warnTitle: "تذكير بالصلاة",
+      warnMsg: (p) => `بقي 5 دقائق على صلاة <strong>${p}</strong>.`,
+      warnSub: "تجهز للصلاة – الله أكبر.",
+      btnDismiss: "إخفاء"
+    },
+    fr: {
+      prayerTime: (p) => `Heure de la prière de ${p}`,
+      ayah: "La prière est une obligation pour les croyants et doit avoir lieu à des heures déterminées.",
+      quranRef: "— Coran 4:103",
+      currentTime: "Heure Actuelle",
+      elapsed: "Écoulé",
+      step1: "Faites les Ablutions (Wudu)",
+      step2: "Faites face à la Qiblah",
+      step3: "Accomplissez votre prière",
+      btnPrayed: "J'ai prié &ndash; Reprendre le travail",
+      btnPrayedDone: "Qu'Allah vous récompense en bien",
+      hadith: '"Les cinq prières quotidiennes expient les péchés commis entre elles."',
+      hadithRef: "— Sahih Muslim 233",
+      taskReminder: "Rappel de Tâche",
+      btnTaskDone: "J'ai terminé &ndash; Reprendre le travail",
+      btnTaskCompleted: "Tâche Terminée !",
+      warnTitle: "Rappel de Prière",
+      warnMsg: (p) => `La prière de <strong>${p}</strong> est dans 5 minutes.`,
+      warnSub: "Préparez-vous pour la prière – Allahu Akbar.",
+      btnDismiss: "Fermer"
+    }
+  };
+
   // ── Build & inject overlay ───────────────────────────────────────────────────
   let overlayType = 'prayer';
 
@@ -43,8 +110,9 @@
     // Read current theme
     chrome.storage.local.get(['settings'], (res) => {
       const theme = res.settings?.theme || 'sage';
-      overlay.className = `theme-${theme}`;
-      overlay.innerHTML = type === 'prayer' ? buildHTML(title) : buildTaskHTML(title);
+      const lang = res.settings?.language || 'en';
+      overlay.className = `theme-${theme} lang-${lang}`;
+      overlay.innerHTML = type === 'prayer' ? buildHTML(title, lang) : buildTaskHTML(title, lang);
       applyStyles(overlay);
       document.documentElement.appendChild(overlay);
 
@@ -89,16 +157,20 @@
   }
 
   function handlePrayed() {
-    const btn = overlay.querySelector('#pb-prayed-btn');
-    if (btn) {
-      btn.textContent = overlayType === 'prayer' ? 'جزاك الله خيراً · Jazākallāhu Khayran' : 'Task Completed!';
+    chrome.storage.local.get(['settings'], (res) => {
+      const lang = res.settings?.language || 'en';
+      const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+      const btn = overlay.querySelector('#pb-prayed-btn');
+      if (btn) {
+        btn.textContent = overlayType === 'prayer' ? t.btnPrayedDone : t.btnTaskCompleted;
       btn.style.background = 'var(--btn-primary-bg)';
       btn.disabled = true;
-    }
-    setTimeout(() => {
-      chrome.runtime.sendMessage({ type: overlayType === 'prayer' ? 'PRAYED' : 'TASK_DONE' });
-      removeOverlay();
-    }, 1400);
+      }
+      setTimeout(() => {
+        chrome.runtime.sendMessage({ type: overlayType === 'prayer' ? 'PRAYED' : 'TASK_DONE' });
+        removeOverlay();
+      }, 1400);
+    });
   }
 
   let warningOverlay = null;
@@ -111,15 +183,20 @@
     
     chrome.storage.local.get(['settings'], (res) => {
       const theme = res.settings?.theme || 'sage';
-      warningOverlay.className = `theme-${theme}`;
+      const lang = res.settings?.language || 'en';
+      const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+      const arabicName = { Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء' }[prayer] || prayer;
+      const pName = lang === 'ar' ? arabicName : prayer;
+      
+      warningOverlay.className = `theme-${theme} lang-${lang}`;
       
       warningOverlay.innerHTML = `
-        <div class="pb-warn-bg">
+        <div class="pb-warn-bg" style="direction: ${lang === 'ar' ? 'rtl' : 'ltr'}">
           <div class="pb-warn-card">
-            <h2 class="pb-warn-title">Prayer Reminder</h2>
-            <p class="pb-warn-text"><strong>${prayer}</strong> prayer is in 5 minutes.</p>
-            <p class="pb-warn-subtext">Prepare yourself for prayer – Allahu Akbar.</p>
-            <button class="pb-warn-btn">Dismiss</button>
+            <h2 class="pb-warn-title">${t.warnTitle}</h2>
+            <p class="pb-warn-text">${t.warnMsg(pName)}</p>
+            <p class="pb-warn-subtext">${t.warnSub}</p>
+            <button class="pb-warn-btn">${t.btnDismiss}</button>
           </div>
         </div>
       `;
@@ -142,37 +219,39 @@
   }
 
   // ── HTML template ────────────────────────────────────────────────────────────
-  function buildTaskHTML(taskName) {
+  function buildTaskHTML(taskName, lang = 'en') {
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     return `
       <div id="pb-task-bg">
         <div id="pb-card">
-          <h1 id="pb-title" style="direction: ltr; font-size: 2.2rem; margin-bottom: 12px;">Task Reminder</h1>
+          <h1 id="pb-title" style="direction: ${lang === 'ar' ? 'rtl' : 'ltr'}; font-size: 2.2rem; margin-bottom: 12px;">${t.taskReminder}</h1>
           <h2 id="pb-subtitle" style="font-size: 1.4rem; color: var(--text-main); font-weight: 600; text-transform: none; letter-spacing: normal;">${taskName}</h2>
           
           <div id="pb-divider"></div>
 
           <div id="pb-time-row">
             <div class="pb-time-box">
-              <span class="pb-time-label">Current Time</span>
+              <span class="pb-time-label">${t.currentTime}</span>
               <span class="pb-time-val" id="pb-clock">${timeStr}</span>
             </div>
             <div class="pb-time-box">
-              <span class="pb-time-label">Elapsed</span>
+              <span class="pb-time-label">${t.elapsed}</span>
               <span class="pb-time-val" id="pb-timer">00:00</span>
             </div>
           </div>
 
           <button id="pb-prayed-btn">
-            I Have Finished &ndash; Resume Work
+            ${t.btnTaskDone}
           </button>
         </div>
       </div>
     `;
   }
-  function buildHTML(prayer) {
+  function buildHTML(prayer, lang = 'en') {
+    const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
     const arabic = {
       Fajr: 'الفجر', Dhuhr: 'الظهر', Asr: 'العصر', Maghrib: 'المغرب', Isha: 'العشاء'
     };
@@ -211,7 +290,7 @@
           </div>
 
           <h1 id="pb-title">صلاة ${arabicName}</h1>
-          <h2 id="pb-subtitle">${prayer} Prayer Time</h2>
+          <h2 id="pb-subtitle">${t.prayerTime(prayer)}</h2>
 
           <div id="pb-divider"></div>
 
@@ -219,34 +298,34 @@
             ﴿ إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا ﴾
           </p>
           <p id="pb-ayah-trans">
-            "Indeed, prayer has been decreed upon the believers a decree of specified times."
-            <span id="pb-ref">— Quran 4:103</span>
+            "${t.ayah}"
+            <span id="pb-ref">${t.quranRef}</span>
           </p>
 
           <div id="pb-time-row">
             <div class="pb-time-box">
-              <span class="pb-time-label">Current Time</span>
+              <span class="pb-time-label">${t.currentTime}</span>
               <span class="pb-time-val" id="pb-clock">${timeStr}</span>
             </div>
             <div class="pb-time-box">
-              <span class="pb-time-label">Elapsed</span>
+              <span class="pb-time-label">${t.elapsed}</span>
               <span class="pb-time-val" id="pb-timer">00:00</span>
             </div>
           </div>
 
           <div id="pb-steps">
-            <div class="pb-step">Make Wudu (Ablution)</div>
-            <div class="pb-step">Face the Qiblah</div>
-            <div class="pb-step">Perform Your Prayer</div>
+            <div class="pb-step">${t.step1}</div>
+            <div class="pb-step">${t.step2}</div>
+            <div class="pb-step">${t.step3}</div>
           </div>
 
           <button id="pb-prayed-btn">
-            I Have Prayed &ndash; Resume Work
+            ${t.btnPrayed}
           </button>
 
           <p id="pb-hadith">
-            "The five daily prayers expiate what is between them."
-            <br><em>— Sahih Muslim 233</em>
+            ${t.hadith}
+            <br><em>${t.hadithRef}</em>
           </p>
         </div>
       </div>
@@ -497,8 +576,10 @@
         margin: 0 0 6px;
         text-shadow: 0 0 30px var(--text-shadow);
         letter-spacing: 0.05em;
-        direction: rtl;
       }
+      .lang-ar #pb-title { direction: rtl; }
+      .lang-ar #pb-subtitle, .lang-ar #pb-steps { direction: rtl; }
+      
       #pb-subtitle {
         font-size: 1.1rem;
         color: var(--text-muted-alt);

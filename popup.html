@@ -108,7 +108,7 @@
     }
 
     body {
-      width: 340px;
+      width: max-content;
       min-height: fit-content;
       background: var(--bg-gradient);
       color: var(--text-main);
@@ -481,22 +481,23 @@
     <div class="header">
       <div class="header-emblem">&#9789;</div>
       <div class="header-text">
-        <h1>Salah Time</h1>
-        <p>Prayer Reminder &amp; Blocker</p>
+        <h1 data-i18n="title">Salah Time</h1>
+        <p data-i18n="subtitle">Prayer Reminder &amp; Blocker</p>
       </div>
-      <button class="header-settings" id="btn-settings" title="Settings">&#9881;</button>
+      <button class="header-settings" id="btn-settings" title="Settings"
+        data-i18n-title="settingsTitle">&#9881;</button>
     </div>
 
     <div id="status-bar" class="ok">
       <div class="status-dot"></div>
-      <span id="status-text">Checking prayer times…</span>
+      <span id="status-text" data-i18n="checking">Checking prayer times…</span>
     </div>
 
     <div id="location-row">
-      📍 <span id="location-text">Detecting location…</span>
+      📍 <span id="location-text" data-i18n="detecting">Detecting location…</span>
     </div>
 
-    <p class="section-title">Today's Prayer Times</p>
+    <p class="section-title" data-i18n="todaysPrayers">Today's Prayer Times</p>
 
     <div id="prayers-grid">
       <div style="text-align:center; padding: 20px; color: rgba(255,255,255,0.3); font-size:0.8rem;">
@@ -506,7 +507,7 @@
 
     <div id="next-section" style="display:none">
       <div>
-        <div class="label">Next Prayer</div>
+        <div class="label" data-i18n="nextPrayer">Next Prayer</div>
         <div class="value" id="next-prayer-name">—</div>
       </div>
       <div id="countdown">—</div>
@@ -515,8 +516,8 @@
     <div class="divider" style="margin-top:14px;"></div>
 
     <div class="footer">
-      <button class="btn" id="btn-refresh">Refresh</button>
-      <button class="btn primary" id="btn-settings-full">Settings</button>
+      <button class="btn" id="btn-refresh" data-i18n="btnRefresh">Refresh</button>
+      <button class="btn primary" id="btn-settings-full" data-i18n="btnSettings">Settings</button>
     </div>
   </div>
 
@@ -531,8 +532,8 @@
         <!-- injected -->
       </div>
       <div class="widget-actions">
-        <button id="widget-btn-refresh" class="widget-btn">↻ Refresh</button>
-        <button id="widget-btn-settings" class="widget-btn">⚙ Settings</button>
+        <button id="widget-btn-refresh" class="widget-btn" data-i18n="wBtnRefresh">↻ Refresh</button>
+        <button id="widget-btn-settings" class="widget-btn" data-i18n="wBtnSettings">⚙ Settings</button>
       </div>
     </div>
   </div>
