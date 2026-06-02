@@ -6,6 +6,8 @@
 
   let overlay = null;
   let timerInterval = null;
+  let btnUnlockInterval = null;
+  const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
   // ── Listen for messages from background ──────────────────────────────────────
   chrome.runtime.onMessage.addListener((msg) => {
@@ -137,8 +139,41 @@
         if (el) el.textContent = `${mm}:${ss}`;
       }, 1000);
 
+      // 15-minute lock on the "I Have Prayed" button (prayer type only)
+      const prayedBtn = overlay.querySelector('#pb-prayed-btn');
+      if (type === 'prayer') {
+        prayedBtn.disabled = true;
+        prayedBtn.style.opacity = '0.6';
+        prayedBtn.style.cursor = 'not-allowed';
+
+        if (btnUnlockInterval) clearInterval(btnUnlockInterval);
+        btnUnlockInterval = setInterval(() => {
+          const remaining = LOCK_DURATION_MS - (Date.now() - startTime);
+          if (remaining <= 0) {
+            clearInterval(btnUnlockInterval);
+            btnUnlockInterval = null;
+            if (prayedBtn) {
+              prayedBtn.disabled = false;
+              prayedBtn.style.opacity = '';
+              prayedBtn.style.cursor = '';
+              // Restore original label
+              chrome.storage.local.get(['settings'], (res) => {
+                const lang = res.settings?.language || 'en';
+                const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+                prayedBtn.innerHTML = t.btnPrayed;
+              });
+            }
+          } else {
+            const rm = Math.floor(remaining / 1000);
+            const rmm = String(Math.floor(rm / 60)).padStart(2, '0');
+            const rss = String(rm % 60).padStart(2, '0');
+            prayedBtn.textContent = `Wait ${rmm}:${rss}`;
+          }
+        }, 1000);
+      }
+
       // Attach "I have prayed" button
-      overlay.querySelector('#pb-prayed-btn').addEventListener('click', handlePrayed);
+      prayedBtn.addEventListener('click', handlePrayed);
     });
   }
 
@@ -146,6 +181,7 @@
     if (!overlay) return;
     clearInterval(timerInterval);
     timerInterval = null;
+    if (btnUnlockInterval) { clearInterval(btnUnlockInterval); btnUnlockInterval = null; }
 
     overlay.style.opacity = '0';
     setTimeout(() => {
