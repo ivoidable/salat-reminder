@@ -333,12 +333,12 @@ async function detectLocation() {
 
   try {
     // Use IP-based location (no browser permissions needed in extension options page)
-    const geo = await fetch('https://ipapi.co/json/').then(r => r.json());
-    document.getElementById('city').value      = geo.city || '';
-    document.getElementById('country').value   = geo.country_name || '';
+    const geo = await fetch('https://free.freeipapi.com/api/json/').then(r => r.json());
+    document.getElementById('city').value      = geo.cityName || '';
+    document.getElementById('country').value   = geo.countryName || '';
     btn.textContent = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].btnDetected) ? TRANSLATIONS[currentLang].btnDetected : 'Location detected!';
     setTimeout(() => { btn.textContent = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].btnDetect) ? TRANSLATIONS[currentLang].btnDetect : 'Auto-detect my location'; btn.disabled = false; }, 2000);
-  } catch (_) {
+  } catch (e) {
     btn.textContent = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].btnDetectFailed) ? TRANSLATIONS[currentLang].btnDetectFailed : 'Detection failed';
     setTimeout(() => { btn.textContent = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang].btnDetect) ? TRANSLATIONS[currentLang].btnDetect : 'Auto-detect my location'; btn.disabled = false; }, 2000);
   }
