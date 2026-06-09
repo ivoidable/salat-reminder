@@ -243,6 +243,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('btn-add-task').addEventListener('click', addTask);
+
+  initializeCityAutocomplete();
 });
 
 async function loadSettings() {
@@ -392,10 +394,6 @@ async function addTask() {
   chrome.runtime.sendMessage({ type: 'UPDATE_TASKS', settings });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeCityAutocomplete();
-});
-
 function initializeCityAutocomplete() {
     const cityInput = document.getElementById('city');
     const dropdown = document.getElementById('city-dropdown');
@@ -468,8 +466,8 @@ function initializeCityAutocomplete() {
         document.querySelector('.city-input-wrap')?.classList.add('open');
 
         try {
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&addressdetails=1&limit=8`;
-            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=8&language=en&format=json`;
+            const res = await fetch(url);
             if (!res.ok) throw new Error(res.status);
 
             const data = await res.json();
@@ -477,10 +475,9 @@ function initializeCityAutocomplete() {
             const seen = new Set();
             const q = query.toLowerCase();
 
-            data.forEach(item => {
-                const addr = item.address || {};
-                const city = addr.city || addr.town || addr.village || addr.municipality || addr.county;
-                const country = addr.country;
+            (data.results || []).forEach(item => {
+                const city = item.name;
+                const country = item.country;
                 if (!city || !country) return;
 
                 if (!city.toLowerCase().includes(q)) return;
