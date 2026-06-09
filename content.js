@@ -21,9 +21,9 @@
   chrome.runtime.sendMessage({ type: 'IS_BLOCKED' }, (resp) => {
     if (chrome.runtime.lastError) return;
     if (resp && resp.blocked) {
-      chrome.storage.local.get(['currentPrayer', 'currentTask'], (d) => {
-        if (d.currentPrayer) showOverlay(d.currentPrayer, 'prayer');
-        else if (d.currentTask) showOverlay(d.currentTask, 'task');
+      chrome.storage.local.get(['currentPrayer', 'currentTask', 'prayerBlockStartTime'], (d) => {
+        if (d.currentPrayer) showOverlay(d.currentPrayer, 'prayer', d.prayerBlockStartTime || null);
+        else if (d.currentTask) showOverlay(d.currentTask, 'task', d.prayerBlockStartTime || null);
       });
     }
   });
@@ -98,7 +98,7 @@
   // ── Build & inject overlay ───────────────────────────────────────────────────
   let overlayType = 'prayer';
 
-  function showOverlay(title, type = 'prayer') {
+  function showOverlay(title, type = 'prayer', persistedStartTime = null) {
     if (overlay) return;
     overlayType = type;
 
@@ -129,8 +129,15 @@
         overlay.style.opacity = '1';
       });
 
+      // ── Persist the block start time so page refreshes don't reset the counter ──
+      // If we have a persisted start time (from a previous page load), use it.
+      // Otherwise this is the first time the overlay is shown — save now.
+      const startTime = persistedStartTime || Date.now();
+      if (!persistedStartTime) {
+        chrome.storage.local.set({ prayerBlockStartTime: startTime });
+      }
+
       // Live elapsed timer
-      const startTime = Date.now();
       timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
@@ -142,34 +149,40 @@
       // 15-minute lock on the "I Have Prayed" button (prayer type only)
       const prayedBtn = overlay.querySelector('#pb-prayed-btn');
       if (type === 'prayer') {
-        prayedBtn.disabled = true;
-        prayedBtn.style.opacity = '0.6';
-        prayedBtn.style.cursor = 'not-allowed';
+        const alreadyElapsed = Date.now() - startTime;
+        if (alreadyElapsed >= LOCK_DURATION_MS) {
+          // 15 minutes already passed (e.g. user refreshed late) — unlock immediately
+          prayedBtn.disabled = false;
+        } else {
+          prayedBtn.disabled = true;
+          prayedBtn.style.opacity = '0.6';
+          prayedBtn.style.cursor = 'not-allowed';
 
-        if (btnUnlockInterval) clearInterval(btnUnlockInterval);
-        btnUnlockInterval = setInterval(() => {
-          const remaining = LOCK_DURATION_MS - (Date.now() - startTime);
-          if (remaining <= 0) {
-            clearInterval(btnUnlockInterval);
-            btnUnlockInterval = null;
-            if (prayedBtn) {
-              prayedBtn.disabled = false;
-              prayedBtn.style.opacity = '';
-              prayedBtn.style.cursor = '';
-              // Restore original label
-              chrome.storage.local.get(['settings'], (res) => {
-                const lang = res.settings?.language || 'en';
-                const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
-                prayedBtn.innerHTML = t.btnPrayed;
-              });
+          if (btnUnlockInterval) clearInterval(btnUnlockInterval);
+          btnUnlockInterval = setInterval(() => {
+            const remaining = LOCK_DURATION_MS - (Date.now() - startTime);
+            if (remaining <= 0) {
+              clearInterval(btnUnlockInterval);
+              btnUnlockInterval = null;
+              if (prayedBtn) {
+                prayedBtn.disabled = false;
+                prayedBtn.style.opacity = '';
+                prayedBtn.style.cursor = '';
+                // Restore original label
+                chrome.storage.local.get(['settings'], (res) => {
+                  const lang = res.settings?.language || 'en';
+                  const t = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+                  prayedBtn.innerHTML = t.btnPrayed;
+                });
+              }
+            } else {
+              const rm = Math.floor(remaining / 1000);
+              const rmm = String(Math.floor(rm / 60)).padStart(2, '0');
+              const rss = String(rm % 60).padStart(2, '0');
+              prayedBtn.textContent = `Wait ${rmm}:${rss}`;
             }
-          } else {
-            const rm = Math.floor(remaining / 1000);
-            const rmm = String(Math.floor(rm / 60)).padStart(2, '0');
-            const rss = String(rm % 60).padStart(2, '0');
-            prayedBtn.textContent = `Wait ${rmm}:${rss}`;
-          }
-        }, 1000);
+          }, 1000);
+        }
       }
 
       // Attach "I have prayed" button
@@ -182,6 +195,9 @@
     clearInterval(timerInterval);
     timerInterval = null;
     if (btnUnlockInterval) { clearInterval(btnUnlockInterval); btnUnlockInterval = null; }
+
+    // Clear persisted start time when the overlay is dismissed
+    chrome.storage.local.remove('prayerBlockStartTime');
 
     overlay.style.opacity = '0';
     setTimeout(() => {
